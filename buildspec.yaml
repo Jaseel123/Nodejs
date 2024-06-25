@@ -27,6 +27,10 @@ https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cl
    commands:
      - echo "Deploying"
      - aws s3 sync ./build s3://<S3_BUCKET>
+     - aws deploy create-deployment \
+         --application-name <CODEDEPLOY_APPLICATION_NAME> \
+         --deployment-group-name <DEPLOYMENT_GROUP_NAME> \
+         --s3-location bucket=<S3_BUCKET>,key=build.zip,bundleType=zip
      - echo "Notifying AWS GameLift"
      - aws gamelift request-upload-credentials --build-name BUILD_NAME --zip-file fileb://./build.zip
      - aws gamelift create-build --name BUILD_NAME --operating-system_L AMAZONINUX --build-root ./build
