@@ -7,6 +7,9 @@ TASK 1
   - Add deploy stages to deploy the built project onto an EC2 instance.
   - Set up AWS GameLift resources such as fleets, aliases either through the AWS Management Console.
   - Ensure all necessary IAM roles and permissions are properly configured.
+  - Create a new CodeDeploy application.
+  - Create a deployment group within the application that specifies the EC2 instances for deployment.
+  - Ensure the EC2 instances have the necessary IAM roles to allow CodeDeploy to manage deployments.
 
 Challenges:-
     - Ensure you have cleared permissions by setting appropriate IAM roles to access and manage GameLift.
