@@ -1,76 +1,42 @@
-# GameLift-Nodejs-ServerSDK
-Unofficial GameLift Server SDK for Node.js
-(A port of GameLift-CSharp-ServerSDK)
+TASK 1
+  ---------
+  Steps:-
+  - Go to the AWS Management Console and open AWS CodePipeline.
+  - Create a new pipeline and choose a source provider as GitHub and connect project repository.
+  - Configure build steps using AWS CodeBuild and specify the given buildspec.yml.
+  - Add deploy stages to deploy the built project onto an EC2 instance.
+  - Set up AWS GameLift resources such as fleets, aliases either through the AWS Management Console.
+  - Ensure all necessary IAM roles and permissions are properly configured.
 
-## Example Code
+Challenges:-
+    - Ensure you have cleared permissions by setting appropriate IAM roles to access and manage GameLift.
+    - Ensure that security groups and access permissions allow the pipeline to deploy the application to the EC2 instances.
+    - Validate network configurations to ensure EC2 instances can interact with AWS GameLift services.
 
-```javascript
-//This is an example of a simple integration with GameLift server SDK that will make game server processes go active on GameLift!
+ TASK 2
+ ---------
+Steps:-
+  - Create a Dockerfile to build a Node.js environment.
+  - Define a WORKDIR .
+  - Copy package files and install npm dependencies.
+  - Copiy source code and start the Node.js server using CMD.
+  - Configure the container to expose port 8080.  
 
-const exitHook = require('exit-hook');
-const { 'default': GameLiftServerAPI, ProcessParameters, LogParameters } = require('gamelift-nodejs-serversdk')
+TASK 3
+ ---------
+Steps:-
+  - Create CloudWatch Log groups and streams for capturing game server logs.
+  - Configure AWS GameLift to send game server metrics to CloudWatch for monitoring.
+  - Use CloudWatch alarms to notify  about any performance issues.
 
-exitHook(() => {
-	GameLiftServerAPI.Destroy()
-});
+Challenges:-
+    - Ensure that the correct IAM roles are assigned the necessary CloudWatch permissions to access logs and metrics.
 
-const listeningPort = 7777;
-
-//InitSDK will establish a local connection with GameLift's agent to enable further communication.
-const initSDKOutcome = GameLiftServerAPI.InitSDK()
-if (initSDKOutcome.Success) {
-  const processParameters = new ProcessParameters(
-    (gameSession) => {
-      //When a game session is created, GameLift sends an activation request to the game server and passes along the game session object containing game properties and other settings.
-      //Here is where a game server should take action based on the game session object.
-      //Once the game server is ready to receive incoming player connections, it should invoke GameLiftServerAPI.ActivateGameSession()
-      GameLiftServerAPI.ActivateGameSession();
-    },
-    (updateGameSession) => {
-      //When a game session is updated (e.g. by FlexMatch backfill), GameLiftsends a request to the game
-      //server containing the updated game session object.  The game server can then examine the provided
-      //matchmakerData and handle new incoming players appropriately.
-      //updateReason is the reason this update is being supplied.
-    },
-    () => {
-      //OnProcessTerminate callback. GameLift will invoke this callback before shutting down an instance hosting this game server.
-      //It gives this game server a chance to save its state, communicate with services, etc., before being shut down.
-      //In this case, we simply tell GameLift we are indeed going to shutdown.
-      GameLiftServerAPI.ProcessEnding();
-    }, 
-    () => {
-      //This is the HealthCheck callback.
-      //GameLift will invoke this callback every 60 seconds or so.
-      //Here, a game server might want to check the health of dependencies and such.
-      //Simply return true if healthy, false otherwise.
-      //The game server has 60 seconds to respond with its health status. GameLift will default to 'false' if the game server doesn't respond in time.
-      //In this case, we're always healthy!
-      return true;
-    },
-    listeningPort, //This game server tells GameLift that it will listen on port 7777 for incoming player connections.
-    new LogParameters([
-      //Here, the game server tells GameLift what set of files to upload when the game session ends.
-      //GameLift will upload everything specified here for the developers to fetch later.
-      '/local/game/logs/myserver.log'
-    ]));
-
-  (async () => {
-    try {
-      //Calling ProcessReady tells GameLift this game server is ready to receive incoming game sessions!
-      const processReadyOutcome = await GameLiftServerAPI.ProcessReady(processParameters);
-      if (processReadyOutcome.Success)
-      {
-        console.log("ProcessReady success.");
-      }
-      else
-      {
-        console.log("ProcessReady failure : " + processReadyOutcome.Error.toString());
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  })()
-} else {
-  console.log("InitSDK failure : " + initSDKOutcome.Error.toString());
-}
-```
+TASK 4
+--------
+Steps:-
+  - Integrate SonarQube to the CodePipeline to perform static code analysis.
+  - Configure SonarQube with proper API tokens and project keys to ensure it correctly scans the codebase.
+  - Modify the buildspec.yml pre_build phase to include security scans and fail the build if critical issues are found.
+Challenges:-
+    - Ensure that the SonarQube server is accessible from the CodeBuild environment and update network setting for this
